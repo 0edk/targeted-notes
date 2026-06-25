@@ -2,6 +2,7 @@
 # run in the directory of notes to make HTMLs
 
 import html
+import os
 from os import path
 import sys
 
@@ -54,3 +55,5 @@ for source_name in SOURCES:
             target.write(FOOTER.format(
                 short=source_name,
             ))
+    if reflective:
+        os.symlink(f"{source_name}.html", "index.html")
