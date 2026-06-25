@@ -1,0 +1,151 @@
+help for obscure Linux tasks/configs, and other software found along the way
+
+fc-list shows what fonts are installed (FontConfig?)
+
+sway crashed with "assertion failed"? try
+sway -V # verbose
+might see something about /run/user
+check if /run/user/$(id -u) exists as it should, and if not
+sudo mkdir /run/user/$(id -u)
+sudo chown $(whoami) !$
+
+man pages/apropos index out-of-date/missing something?
+sudo makewhatis /usr/share/man
+
+list explicitly-installed packages (not just dependencies) under Void's XBPS:
+xbps-query -m
+
+make adb (Android Debug Bridge) work for regular non-root users:
+- make /etc/udev/rules.d/51-android.rules as follows
+SUBSYSTEM=="usb", ATTR{idVendor}=="VENDOR_ID", MODE="0660", GROUP="plugdev"
+    where you fill in VENDOR_ID according to the first half of the ID field from lsusb
+- reload udev with
+    sudo udevadm control --reload
+    sudo udevadm trigger
+- add self to plugdev group
+    sudo usermod -aG plugdev $USER
+
+Vim's 'tabstop' is the width of the TAB character, not the width of a space-indent
+'shiftwidth' is what you seek for general indent-width
+
+~user is home directory of arbitrary user
+
+uni search QUERY
+is a great way to find Unicode characters, in place of my ucc
+
+string match -r '%d.*' $name
+doesn't work because the regexp dialect of fish's string-match doesn't have %d
+
+flatpak info --show-permissions app.domain.name
+to show what directories a Flatpak app has access to
+flatpak override --user --filesystem=DESCRIPTION app.domain.name
+to add access to more such directories
+
+mkdir -p /mnt/{boot,home}
+expands by alternation in braces to
+mkdir -p /mnt/boot /mnt/home
+
+to convert caps-lock to something more useful, i run
+sudo rc-update add udevmon default
+to register a service "udevmon" under OpenRC, with
+sudo rc-service udevmon restart
+to start it, where the service is defined in
+/etc/init.d/udevmon
+a text file similar to peers in its same directory, but simpler, which runs
+/usr/bin/udevmon -c /etc/interception/udevmon.d/caps2esc.yaml
+which caps2esc.yaml is based around the command
+intercept -g $DEVNODE | caps2esc | uinput -d $DEVNODE
+where intercept and uinput come from interception-tools
+
+pacman -Qo is faster than pacman -F, but only applies to already-installed files
+
+/etc/wpa_supplicant/wpa_supplicant.conf holds network blocks that hold, e.g. for eduroam
+network={
+    ssid="eduroam"
+    identity="user@host"
+    psk="password"
+    password="password"
+    mesh_fwding=1
+}
+adding mesh_fwding seemed to solve recent connection issues
+
+colours of syntax highlighting in Vim/Neovim are changed by
+:colorscheme NAME
+
+WiFi gets soft rfkill'd on each boot? apparently connmand causes this on my machine, so you must somehow prevent connmand from running
+i do that by replacing the command in /etc/init.d/connmand
+
+a udev rule can force the monitor backlight to minimum brightness when detected by the udev-trigger service:
+ACTION=="add", SUBSYSTEM=="backlight", KERNEL=="acpi_video0", RUN+="/bin/sh -c 'echo 0 > /sys/class/backlight/acpi_video0/brightness'"
+put that in /etc/udev/rules.d/90-backlight.rules and try it with
+sudo rc-service udev-trigger restart
+
+animations too slow in LibreWolf/Firefox? go to about:config, search for "animation", and change options like sidebar.animation.expand-on-hover.duration-ms
+
+Ctrl+Y in Neovim serves to pick the first autocomplete option, more effective than the multi-step Tab -> Shift-Tab
+
+loginctl suspend
+from elogind, works to suspend (sleep to mem) your system without root access, like an easier
+echo mem >/sys/power/state
+
+POSIX sh's test command includes the form [ A -nt B ], for "file A newer than file B"
+it treats files that don't exist as older than any file that does exist, but all files that don't exist are of equal age
+
+Android's adb shell uses Toybox (BusyBox knockoff) for coreutils, of which touch -d is broken in parsing datetimes, but at least adb push seems to copy modification times as hoped
+
+fetch content for a git submodule that starts empty/blank with
+git submodule update --init
+
+adb shell pm uninstall --user 0 TLD.DOMAIN.APPNAME
+should uninstall/remove an app from Android over adb command line, we'll see if it persists across phone restarts
+
+networking (wpa_supplicant, dhcpcd, etc) doesn't start automatically because those services aren't in any OpenRC runlevel, to fix:
+sudo rc-update add chrony default
+sudo rc-update add wpa_supplicant default
+
+you can preview/show a TTF font file without installing via ImageMagick:
+display font.ttf
+
+PipeWire audio depends on processes pipewire, pipewire-pulse, and wireplumber, serviced for OpenRC under respective files of /etc/user/init.d/
+rc-update --user add pipewire
+
+list input devices under Sway (Wayland) with
+swaymsg -t get_inputs
+this gives JSON if led anywhere other than the immediate terminal, so you can filter it with e.g.
+swaymsg -t get_inputs | jq '.[] | select(.type == "keyboard")'
+
+setup a CUPS printer for lpr, given IP address
+sudo lpadmin -p printername -v ipp://1.2.3.4 -m everywhere
+
+external speakers via headphone jack stopped working, found that the issue was on the computer, not the speakers, fixed with ALSA command while speakers plugged in
+sudo alsactl restore
+
+input device on bus 0x11, vendor 0x2, product 0x8, version 0x300 is "AlpsPS/2 ALPS DualPoint TouchPad" which gives input events for absolute finger position on laptop trackpad
+this is a surprise tool that will help us later
+
+burn an ISO (such as Linux installer) to a flash drive /dev/sdb with (very slow on my machine, such as 2 MB/s)
+sudo dd if=target.iso of=/dev/sdb
+notably use /dev/sdb (the whole drive) and not /dev/sdb1 (a partition), for if you write to just a partition, it's not bootable as intended, and yields an error such as "Selected boot device failed"
+
+to use Neovim's native LSP client, put Lua config files in ~/.config/nvim/lsp/ as written in e.g.
+https://github.com/neovim/nvim-lspconfig
+
+scanimage on my machine has a long delay (~8 s) before any scanning, or even showing backend info, which is fixed by specifying the device in the command line, as
+scanimage -d escl:http://192.168.0.11:80
+
+zram is a Linux kernel feature for compressed swap-like space in DRAM, which i set up (yet to see if it actually helps) with
+sudo modprobe zram
+sudo zramctl -fs 1GiB
+sudo mkswap /dev/zram0
+sudo swapon /dev/zram0
+
+Intel i5 M 520 has Westmere microarchitecture of 2010, and cannot run OpenGL 3 or Vulkan
+
+to compile and run code to Arduino Nano:
+arduino-cli sketch new sketch_name
+arduino-cli upload -b arduino:avr:nano -p /dev/ttyUSB0
+to write to /dev/ttyUSB0, you must be in uucp group (apparently dialout on other machines)
+
+loginctl suspend via laptop lid close has been very laggy on my machine, but inconsistently and (it appeared) only after the system was up for a long time
+preliminarily: time since last resume + lag from new lid-close to actual suspend = 30 s + epsilon, which 30 s figure causally matches loginctl's HoldoffTimeoutSec parameter, which is apparently a feature, not a bug (see elogind documentation)
+ChatGPT tells me the point of that is to handle the (rare for me) situation that i dock the laptop while it's closed/suspended, resume it, and close it again quickly, before elogind can detect the docking and change its behaviour

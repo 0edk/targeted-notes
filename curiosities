@@ -1,0 +1,9 @@
+things to investigate, try, and learn from, like quests but smaller
+
+how many solvable nonograms per a given size?
+
+how to number buildings on streets with one sequence across all streets? probably a space-filling curve
+
+detailed analysis of subset shuffling algorithms
+
+how many distinct languages for DFAs of a given size?

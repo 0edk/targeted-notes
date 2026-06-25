@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+# run in the directory of notes to make HTMLs
+
+import html
+from os import path
+import sys
+
+HEADER = """<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{short}</title>
+        <link rel="stylesheet" href="../style.css">
+        <link rel="icon" type="image/png" href="../favicon.png">
+        <style>p {{ white-space: pre-line; }}</style>
+    </head>
+    <body>
+        <h1>{long}</h1>
+"""
+FOOTER = """
+        <footer><a href="{short}">raw text</a> - <a href="../index.html">homepage</a></footer>
+    </body>
+</html>
+"""
+SOURCES = [
+    "aphorisms", "curiosities", "linux", "publish", "quests", "webdev",
+]
+
+for source_name in SOURCES:
+    reflective = path.basename(sys.argv[0]) == source_name
+    with open(f"{source_name}.html", "w") as target:
+        with open(f"{source_name}", "r") as source:
+            target.write(HEADER.format(
+                short=source_name,
+                long="notes-to-HTML script" if reflective
+                    else source.readline(),
+            ))
+            if reflective:
+                target.write("<pre>\n")
+                target.write(html.escape(source.read()))
+                target.write("</pre>\n")
+                target.write("<ul>notes available:\n")
+                target.write("\n".join(
+                    f"<li><a href=\"{name}.html\">{name}</a></li>"
+                    for name in SOURCES
+                ))
+                target.write("</ul>")
+            else:
+                target.write("\n".join(
+                    f"<p>{html.escape(paragraph)}</p>"
+                    for paragraph in source.read().split("\n\n")
+                ))
+            target.write(FOOTER.format(
+                short=source_name,
+            ))

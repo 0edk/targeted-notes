@@ -1,0 +1,17 @@
+insights and tricks in web development: HTML, CSS, JavaScript, and ilk
+
+CSS attribute on img
+filter: invert();
+negates colours for a good cheap dark-mode, without editing the image itself, as in e.g. Anki templates
+
+CSS to automatically comma-separate items in a container, like Python's ", ".join(l):
+#parent > span ~ span::before {
+    content: ", ";
+}
+
+a div extends from left edge to right edge, full width, unless its width is explicitly set in CSS, hence a bias in relative positioning on large screens
+
+for reasons i struggle to grasp, the following line in <head> is very important to help a page look right on mobile:
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+Array.some() and Array.every() work vaguely like Python any() and all(), respectively

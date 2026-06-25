@@ -1,0 +1,35 @@
+projects and endeavours that i might find worth pursuing
+you may pursue any of these, but please let me know if you do
+
+Neovim LSP and successor to Roraer
+then a "shell" built from there (proportional font, Dotsies?, reloadable sections, a tad like ipynb)
+could make GUI operation to merge commands as by && or ;
+
+automated drawing (photo/general image to image of a few curves), find or invent an algorithm
+candidate, beautiful-if-workable: binary space partitioning
+draw a line that cuts the image in half, then adjust/reshape it (control points?) to sharpen the average colour distance between the two "halves"
+then recurse on each partition; the divisions are the lines of the drawing
+tested it a little, doesn't seem to work
+
+Anki export notes to PDF (look for prior art, especially built-in perhaps that i haven't found)
+
+convert digit strings to words by mnemonic major system and a search thru Hebrew shoreshim (seems better than English on average for three- or four-consonant strings)
+
+configure Corsair keyboard lighting, dim except for a bright flash when pressing each key
+
+machine-learned program to identify orientation of an image
+
+comments as a directed graph, rather than a tree
+must it be acyclic? let's find out
+
+program (editor plugin?) to reflow source code, so that most lines are just barely shorter than the window width, while conforming to the range of acceptable code formattings
+
+enhance Yukogurafu: put well-drawn graphs (Graphviz?) in the normal editor for Directed Graph [n] cards, live-updated
+
+implement infix-only language further than ever before, with Prolog type inference (if that turns out practical) and compilation thru qbe
+
+3D model to drawing via fragment shader or equivalent: draw lines at and only at pixels of "fast-changing" normals, materials, and/or hit-depths
+
+highly configurable/reprogrammable e-paper smartwatch (definitely seek prior art)
+input by a small number of side buttons, and/or accelerometre/gyrometre for a Dasher-like text input method
+perhaps port a vi-like editor adapted for unusually few buttons, treating a repeat tap as more expensive than a different-button tap
