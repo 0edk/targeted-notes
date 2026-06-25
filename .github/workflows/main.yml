@@ -1,9 +1,6 @@
 name: Deploy GitHub Pages
 
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+on: push
 
 permissions:
   contents: read
@@ -30,7 +27,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
